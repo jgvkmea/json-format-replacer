@@ -1,7 +1,10 @@
-.PHONY: build clean install test run help
+.PHONY: build clean install install-local uninstall test run help
 
 # バイナリ名
 BINARY_NAME=json-format-replacer
+
+# インストール先
+INSTALL_PATH=/usr/local/bin
 
 # デフォルトターゲット
 .DEFAULT_GOAL := help
@@ -9,13 +12,15 @@ BINARY_NAME=json-format-replacer
 ## help: ヘルプメッセージを表示
 help:
 	@echo "利用可能なコマンド:"
-	@echo "  make build     - バイナリをビルド"
-	@echo "  make clean     - ビルド成果物を削除"
-	@echo "  make install   - バイナリを \$$GOPATH/bin にインストール"
-	@echo "  make test      - テストを実行"
-	@echo "  make run       - プログラムを実行（例: make run ARGS=sample.json）"
-	@echo "  make fmt       - コードフォーマット"
-	@echo "  make vet       - コード解析"
+	@echo "  make build         - バイナリをビルド"
+	@echo "  make clean         - ビルド成果物を削除"
+	@echo "  make install       - バイナリを $(INSTALL_PATH) にインストール（要sudo）"
+	@echo "  make install-local - バイナリを \$$GOPATH/bin にインストール"
+	@echo "  make uninstall     - $(INSTALL_PATH) からアンインストール（要sudo）"
+	@echo "  make test          - テストを実行"
+	@echo "  make run           - プログラムを実行（例: make run ARGS=sample.json）"
+	@echo "  make fmt           - コードフォーマット"
+	@echo "  make vet           - コード解析"
 
 ## build: バイナリをビルド
 build:
@@ -30,11 +35,24 @@ clean:
 	rm -f $(BINARY_NAME)
 	@echo "クリーンアップ完了"
 
-## install: バイナリを $GOPATH/bin にインストール
-install:
-	@echo "インストール中..."
+## install: バイナリを /usr/local/bin にインストール
+install: build
+	@echo "$(INSTALL_PATH) にインストール中..."
+	sudo cp $(BINARY_NAME) $(INSTALL_PATH)/$(BINARY_NAME)
+	sudo chmod +x $(INSTALL_PATH)/$(BINARY_NAME)
+	@echo "インストール完了: $(INSTALL_PATH)/$(BINARY_NAME)"
+
+## install-local: バイナリを $GOPATH/bin にインストール
+install-local:
+	@echo "$GOPATH/bin にインストール中..."
 	go install
 	@echo "インストール完了"
+
+## uninstall: /usr/local/bin からアンインストール
+uninstall:
+	@echo "$(INSTALL_PATH) からアンインストール中..."
+	sudo rm -f $(INSTALL_PATH)/$(BINARY_NAME)
+	@echo "アンインストール完了"
 
 ## test: テストを実行
 test:
